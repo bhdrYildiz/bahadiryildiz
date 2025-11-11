@@ -4,11 +4,27 @@
     objects: [],
     totals: { left: 0, right: 0 },
     angle: 0,
-    log: []
+    log: [],
+    //sıradaki ağırlığı ekledim.
+    nextWeight: null
   };
 
   //sayfa açılınca yüklenen verileri yükleme varsa (localStorageden) yoksa default değerler okunur.
   let state = loadState();
+
+  //sıradaki ağırlığı ekledim.
+  if (typeof state.nextWeight !== "number") {
+    state.nextWeight = getRandomWeight();
+  }
+  state.totals.left = 0;
+  state.totals.right = 0;
+  state.objects.forEach((object) => {
+    if (object.side === "left") {
+      state.totals.left += object.weight;
+    } else {
+      state.totals.right += object.weight;
+    }
+  });
 
   //html elemanlarını tek bir nesnede topladım.
   //her defasında DOM araması yapmak yerine tek bir nesne ile erişim sağladım.
@@ -16,6 +32,7 @@
     plank: document.getElementById("seesaw-plank"),
     resetButton: document.getElementById("reset-button"),
     leftWeight: document.getElementById("left-weight"),
+    nextWeight: document.getElementById("next-weight"),
     rightWeight: document.getElementById("right-weight"),
     tiltAngle: document.getElementById("tilt-angle"),
     logList: document.getElementById("log-list")
@@ -39,17 +56,40 @@
     //uzaklık negatifse sol, pozitifse sağ taraf , ilerde hangi tarafa düştüğnü kullanmak için.
     const side = distanceFromCenter < 0 ? "left" : "right";
 
+    //sıradaki ağırlığı alıyorum.
+    const weight = state.nextWeight;
+    const normalizedPosition = valueRange(clickX / bounds.width, 0, 1);
+
+    state.objects.push({
+      id: createObjectId(),
+      weight,
+      side,
+      distanceX: distanceFromCenter,
+      position: normalizedPosition
+    });
+
+    if (side === "left") {
+      state.totals.left += weight;
+    } else {
+      state.totals.right += weight;
+    }
+
     addLogMesasge(
-      `Tıklama: ${side === "left" ? "sol" : "sağ"} taraf, merkezden ${
-        Math.abs(Math.round(distanceFromCenter))
-      }px`
+      `${weight}kg ağırlık ${
+        side === "left" ? "sol" : "sağ"
+      } tarafa bırakıldı (merkezden ${Math.abs(Math.round(distanceFromCenter))}px)`
     );
 
-    // İş mantığı sonraki adımlarda eklenecek.
+    state.nextWeight = getRandomWeight();
+    saveState();
+    renderAll();
   }
 
   function handleReset() {
     state = structuredClone(DEFAULT_STATE);
+    state.nextWeight = getRandomWeight();
+    state.totals.left = 0;
+    state.totals.right = 0;
     //yeni durum localStorage e kaydedilir.
     saveState();
     //ekranı yeniden oluşturmak için.
@@ -70,6 +110,7 @@
     //tork hesaplamaları için (mesafe x ağırlık toplamı küsürat olmasın diye 1 ondalık basamağa yuvarlayıp 
     // elementlere yazdırıyorum. 
     elements.leftWeight.textContent = `${state.totals.left.toFixed(1)} kg`;
+    elements.nextWeight.textContent = `${state.nextWeight} kg`;
     elements.rightWeight.textContent = `${state.totals.right.toFixed(1)} kg`;
     elements.tiltAngle.textContent = `${state.angle.toFixed(1)}°`;
     elements.plank.style.transform = `rotate(${state.angle}deg)`;
@@ -112,6 +153,19 @@
       .forEach((node) => node.remove());
   }
 
+  function getRandomWeight() {
+    return Math.floor(Math.random() * 20) + 1; // 1-20 arası rastgele bir ağırlık oluturuluyor
+  }
+  //value: 0-1 arası bir değer, min: 0, max: 1 tahterevallinin genişliğine göre.
+  function valueRange(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+
+  function createObjectId() {
+    return `obj-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  }
+
   //localStorage'den kayıt okunuyor, yoksa DEFAULT_STATE ile başlanır.(klonlanıyor)
   function loadState() {
     try {
@@ -125,7 +179,10 @@
         objects: Array.isArray(parsed.objects) ? parsed.objects : [],
         totals: parsed.totals ?? structuredClone(DEFAULT_STATE.totals),
         angle: typeof parsed.angle === "number" ? parsed.angle : 0,
-        log: Array.isArray(parsed.log) ? parsed.log : []
+        log: Array.isArray(parsed.log) ? parsed.log : [],
+        //sıradaki ağırlığı ekledim.
+        nextWeight:
+          typeof parsed.nextWeight === "number" ? parsed.nextWeight : null
       };
     } catch (error) {
       console.warn("Yerel depolama okunamadı:", error);
