@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tahterevalli Simülasyonu</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page-content">
+    <section class="status-panel" aria-label="Ağırlık Özeti">
+      <div class="status-card">
+        <span class="status-label">Sol Ağırlık</span>
+        <strong id="left-weight">0 kg</strong>
+      </div>
+      <div class="status-card">
+        <span class="status-label">Sağ Ağırlık</span>
+        <strong id="right-weight">0 kg</strong>
+      </div>
+      <div class="status-card">
+        <span class="status-label">Eğim Açısı</span>
+        <strong id="tilt-angle">0°</strong>
+      </div>
+    </section>
+
+    <section class="simulation-area" aria-label="Tahterevalli Alanı">
+      <div class="seesaw-wrapper">
+        <div class="seesaw-plank" id="seesaw-plank">
+          <div class="seesaw-pivot" aria-hidden="true"></div>
+        </div>
+      </div>
+      <button type="button" class="reset-button" id="reset-button">Sıfırla</button>
+    </section>
+
+    <section class="event-log" aria-label="Olay Günlüğü">
+      <ol id="log-list"></ol>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
