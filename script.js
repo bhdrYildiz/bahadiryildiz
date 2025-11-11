@@ -80,6 +80,23 @@
       } tarafa bırakıldı (merkezden ${Math.abs(Math.round(distanceFromCenter))}px)`
     );
 
+    let leftTorque = 0;
+    let rightTorque = 0;
+
+    //tork hesaplamaları için fonksiyon.
+    state.objects.forEach((object) => {
+      const distance = Math.abs(object.distanceX);
+      const torque = object.weight * distance;
+
+      if (object.side === "left") {
+        leftTorque += torque;
+      } else {
+        rightTorque += torque;
+      }
+    });
+
+    const rawAngle = (rightTorque - leftTorque) / 100;
+    state.angle = Math.max(-30, Math.min(30, rawAngle));
     state.nextWeight = getRandomWeight();
     saveState();
     renderAll();
@@ -90,6 +107,7 @@
     state.nextWeight = getRandomWeight();
     state.totals.left = 0;
     state.totals.right = 0;
+    state.angle = 0;
     //yeni durum localStorage e kaydedilir.
     saveState();
     //ekranı yeniden oluşturmak için.
