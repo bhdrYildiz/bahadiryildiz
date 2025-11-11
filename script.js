@@ -1,5 +1,4 @@
 (() => {
-  const STORAGE_KEY = "seesaw-simulation-state";
   const DEFAULT_STATE = {
     objects: [],
     totals: { left: 0, right: 0 },
@@ -9,8 +8,7 @@
     nextWeight: null
   };
 
-  //sayfa açılınca yüklenen verileri yükleme varsa (localStorageden) yoksa default değerler okunur.
-  let state = loadState();
+  let state = structuredClone(DEFAULT_STATE);
 
   //sıradaki ağırlığı ekledim.
   if (typeof state.nextWeight !== "number") {
@@ -98,7 +96,6 @@
     const rawAngle = (rightTorque - leftTorque) / 100;
     state.angle = Math.max(-30, Math.min(30, rawAngle));
     state.nextWeight = getRandomWeight();
-    saveState();
     renderAll();
   }
 
@@ -108,8 +105,6 @@
     state.totals.left = 0;
     state.totals.right = 0;
     state.angle = 0;
-    //yeni durum localStorage e kaydedilir.
-    saveState();
     //ekranı yeniden oluşturmak için.
     renderAll();
     addLogMesasge("Simülasyon sıfırlandı.");
@@ -161,7 +156,6 @@
     //log a ekkleme yapıyorum. ilk index oalrak.
     state.log.unshift(message);
     state.log = state.log.slice(0, 20);
-    saveState();
     renderLog();
   }
 
@@ -184,36 +178,5 @@
     return `obj-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
   }
 
-  //localStorage'den kayıt okunuyor, yoksa DEFAULT_STATE ile başlanır.(klonlanıyor)
-  function loadState() {
-    try {
-    //önceki oturumda kaydedilmiş JSON string’i geri alıyoruz. Eğer hiç veri yoksa null döner.
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        return structuredClone(DEFAULT_STATE);
-      }
-      const parsed = JSON.parse(stored);
-      return {
-        objects: Array.isArray(parsed.objects) ? parsed.objects : [],
-        totals: parsed.totals ?? structuredClone(DEFAULT_STATE.totals),
-        angle: typeof parsed.angle === "number" ? parsed.angle : 0,
-        log: Array.isArray(parsed.log) ? parsed.log : [],
-        //sıradaki ağırlığı ekledim.
-        nextWeight:
-          typeof parsed.nextWeight === "number" ? parsed.nextWeight : null
-      };
-    } catch (error) {
-      console.warn("Yerel depolama okunamadı:", error);
-      return structuredClone(DEFAULT_STATE);
-    }
-  }
-
-  function saveState() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (error) {
-      console.warn("Yerel depolama yazılamadı:", error);
-    }
-  }
 })();
 

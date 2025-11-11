@@ -8,7 +8,7 @@ Bu proje, kullanıcı tıklamalarıyla ağırlık eklenebilen ve fizik kurallar�
 - [x] Başlangıç arayüzü ve JavaScript iskeletini hazırlama
 - [x] Sol/Sağ ağırlık toplamlarını hesaplama ve sıradaki ağırlığı gösterme
 - [x] Fizik hesapları ve obje yerleşimi
-- [ ] Yerel depolama senkronizasyonu için detaylı durum yönetimi
+- [x] Yerel depolama senkronizasyonu için detaylı durum yönetimi -> local strorage kaldırıldı. 
 - [ ] Animasyonlar, log sistemi ve ek geliştirmeler
 
 ## Notlar
@@ -20,4 +20,5 @@ Bu proje, kullanıcı tıklamalarıyla ağırlık eklenebilen ve fizik kurallar�
 
 - Status kartları artık sol/sağ toplam ağırlıkları ve sıradaki rastgele ağırlığı gerçek zamanlı gösteriyor.
 - Tahterevalli, basit tork hesabı ile ±30° aralığında dönüyor; pivot sabit konumda kalıyor.
+- local storage kaldırıldı 
 
