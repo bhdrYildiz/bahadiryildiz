@@ -134,6 +134,106 @@ body {
   background: #10b981;
 }
 
+.drop-object {
+  position: absolute;
+  top: 20px;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  pointer-events: none;
+  animation: drop-to-plank 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+.drop-object[data-side="left"] {
+  background: #f97316;
+}
+
+.drop-object[data-side="right"] {
+  background: #10b981;
+}
+
+.hover-indicator {
+  position: absolute;
+  top: 20px;
+  transform: translateX(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(14, 165, 233, 0.15);
+  border: 2px dashed rgba(14, 165, 233, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0ea5e9;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 315;
+}
+
+.hover-indicator::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0;
+  height: calc(160px + 20%);
+  transform: translateX(-50%);
+  border-left: 1px dashed rgba(148, 163, 184, 0.6);
+  transition: opacity 0.2s ease;
+}
+
+.hover-indicator[data-side="left"] {
+  color: #ea580c;
+  border-color: rgba(234, 88, 12, 0.7);
+  background: rgba(234, 88, 12, 0.15);
+}
+
+.hover-indicator[data-side="right"] {
+  color: #059669;
+  border-color: rgba(5, 150, 105, 0.7);
+  background: rgba(5, 150, 105, 0.15);
+}
+
+.hover-indicator.is-hidden {
+  opacity: 0;
+}
+
+.hover-indicator__line {
+  display: none;
+}
+
+.hover-indicator__value {
+  line-height: 1;
+}
+
+@keyframes drop-to-plank {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40px) scale(0.85);
+  }
+  40% {
+    opacity: 0.8;
+    transform: translate(-50%, -5px) scale(1.05);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, 10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, calc(50% - 18px)) scale(1);
+  }
+}
+
 .reset-button {
   padding: 0.75rem 1.5rem;
   border: none;

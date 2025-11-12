@@ -27,14 +27,18 @@
   //html elemanlarını tek bir nesnede topladım.
   //her defasında DOM araması yapmak yerine tek bir nesne ile erişim sağladım.
   const elements = {
+    wrapper: document.querySelector(".seesaw-wrapper"),
     plank: document.getElementById("seesaw-plank"),
     resetButton: document.getElementById("reset-button"),
     leftWeight: document.getElementById("left-weight"),
     nextWeight: document.getElementById("next-weight"),
     rightWeight: document.getElementById("right-weight"),
     tiltAngle: document.getElementById("tilt-angle"),
-    logList: document.getElementById("log-list")
+    logList: document.getElementById("log-list"),
+    indicator: null
   };
+
+  setupIndicator();
 
   initialize();
 
@@ -42,11 +46,14 @@
     renderAll();
     elements.plank.addEventListener("click", handlePlankClick);
     elements.resetButton.addEventListener("click", handleReset);
+    elements.plank.addEventListener("mousemove", handlePointerMove);
+    elements.plank.addEventListener("mouseleave", handlePointerLeave);
   }
 
   function handlePlankClick(event) {
     //tahterevallinin ekrandaki konum bilgisi alınır.//tıklamanın nereye düştüğünü hesaplamak için gerekli. 
     const bounds = elements.plank.getBoundingClientRect();
+    const wrapperBounds = elements.wrapper.getBoundingClientRect();
     //event.clientX: ekranın solundan ölçülen x koordinatı.
     const clickX = event.clientX - bounds.left;
     const halfWidth = bounds.width / 2;
@@ -57,6 +64,16 @@
     //sıradaki ağırlığı alıyorum.
     const weight = state.nextWeight;
     const normalizedPosition = valueRange(clickX / bounds.width, 0, 1);
+    const dropLeft = bounds.left + clickX - wrapperBounds.left;
+
+    showDropAnimation({
+      side,
+      weight,
+      left: dropLeft,
+      onComplete: () => {
+        renderAll();
+      }
+    });
 
     state.objects.push({
       id: createObjectId(),
@@ -96,7 +113,7 @@
     const rawAngle = (rightTorque - leftTorque) / 100;
     state.angle = Math.max(-30, Math.min(30, rawAngle));
     state.nextWeight = getRandomWeight();
-    renderAll();
+    refreshIndicatorText();
   }
 
   function handleReset() {
@@ -105,6 +122,9 @@
     state.totals.left = 0;
     state.totals.right = 0;
     state.angle = 0;
+    removeDropAnimations();
+    hideIndicator();
+    refreshIndicatorText();
     //ekranı yeniden oluşturmak için.
     renderAll();
     addLogMesasge("Simülasyon sıfırlandı.");
@@ -163,6 +183,77 @@
     elements.plank
       .querySelectorAll(".seesaw-object")
       .forEach((node) => node.remove());
+  }
+
+  function showDropAnimation({ side, weight, left, onComplete }) {
+    const drop = document.createElement("div");
+    drop.className = "drop-object";
+    drop.dataset.side = side;
+    drop.textContent = `${weight}kg`;
+    drop.style.left = `${left}px`;
+    drop.addEventListener("animationend", () => {
+      drop.remove();
+      if (typeof onComplete === "function") {
+        onComplete();
+      }
+    });
+    elements.wrapper.appendChild(drop);
+  }
+
+  function removeDropAnimations() {
+    elements.wrapper
+      .querySelectorAll(".drop-object")
+      .forEach((node) => node.remove());
+  }
+
+  function setupIndicator() {
+    const indicator = document.createElement("div");
+    indicator.className = "hover-indicator is-hidden";
+    indicator.innerHTML = `<span class="hover-indicator__value">${state.nextWeight}kg</span><span class="hover-indicator__line"></span>`;
+    elements.wrapper.appendChild(indicator);
+    elements.indicator = indicator;
+  }
+
+  //tahterevallinin üzerine gelindiğinde gösterilen nesne göstergesi.
+  function handlePointerMove(event) {
+    if (!elements.indicator) {
+      return;
+    }
+    const plankBounds = elements.plank.getBoundingClientRect();
+    const wrapperBounds = elements.wrapper.getBoundingClientRect();
+    const rawX = event.clientX - plankBounds.left;
+    const clampedX = valueRange(rawX, 0, plankBounds.width);
+    //merkezden ne kadar uzakta olduğu hesaplamak için.
+    const halfWidth = plankBounds.width / 2;
+    const distanceFromCenter = clampedX - halfWidth;
+    const side = distanceFromCenter < 0 ? "left" : "right";
+
+    //nesne rengini belirlemek için.
+    elements.indicator.dataset.side = side;
+    elements.indicator.style.left = `${plankBounds.left + clampedX - wrapperBounds.left}px`;
+    refreshIndicatorText();
+    elements.indicator.classList.remove("is-hidden");
+  }
+
+  function handlePointerLeave() {
+    hideIndicator();
+  }
+
+  function hideIndicator() {
+    if (elements.indicator) {
+      elements.indicator.classList.add("is-hidden");
+    }
+  }
+
+  //sıradaki ağırlığın önizlemesini göstermek için.
+  function refreshIndicatorText() {
+    if (!elements.indicator) {
+      return;
+    }
+    const valueNode = elements.indicator.querySelector(".hover-indicator__value");
+    if (valueNode) {
+      valueNode.textContent = `${state.nextWeight}kg`;
+    }
   }
 
   function getRandomWeight() {
