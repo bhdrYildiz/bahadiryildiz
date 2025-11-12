@@ -185,12 +185,15 @@
       .forEach((node) => node.remove());
   }
 
+  //obje düşüsü için animasyon fonksiyonu.
   function showDropAnimation({ side, weight, left, onComplete }) {
+    //div oluşturma css renk seçme ve ağırlıkları yazdırma.
     const drop = document.createElement("div");
     drop.className = "drop-object";
     drop.dataset.side = side;
     drop.textContent = `${weight}kg`;
     drop.style.left = `${left}px`;
+    //animasyon bittiğinde div silinir.
     drop.addEventListener("animationend", () => {
       drop.remove();
       if (typeof onComplete === "function") {
@@ -200,6 +203,7 @@
     elements.wrapper.appendChild(drop);
   }
 
+  //wrapper içindeki tüm drop-objectları siler.
   function removeDropAnimations() {
     elements.wrapper
       .querySelectorAll(".drop-object")

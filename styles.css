@@ -148,7 +148,7 @@ body {
   font-weight: 600;
   color: #ffffff;
   pointer-events: none;
-  animation: drop-to-plank 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation: drop-to-plank 0.6s ease-in;
 }
 
 .drop-object[data-side="left"] {
@@ -217,20 +217,20 @@ body {
 
 @keyframes drop-to-plank {
   0% {
-    opacity: 0;
-    transform: translate(-50%, -40px) scale(0.85);
+    opacity: 1;
+    transform: translate(-50%, -20px) ;
   }
   40% {
-    opacity: 0.8;
-    transform: translate(-50%, -5px) scale(1.05);
+    opacity: 1;
+    transform: translate(-50%, 0px) ;
   }
   70% {
     opacity: 1;
-    transform: translate(-50%, 10px) scale(0.95);
+    transform: translate(-50%, 20px) ;
   }
   100% {
     opacity: 1;
-    transform: translate(-50%, calc(50% - 18px)) scale(1);
+    transform: translate(-50%, 30px);
   }
 }
 
